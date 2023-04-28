@@ -65,4 +65,16 @@ kubectl autoscale deployment name --max=10 --min=3 --cpu-percent=50
 
 az aks nodepool add --resource-group Contoso-RG --cluster-name aks-disney --name gpunodepool --node-count 1 --node-taints sku=gpu:NoSchedule --no-wait
 
-
+az aks create \ 
+    --resource-group $RESOURCE_GROUP \ 
+    --name $CLUSTER_NAME \ 
+    --attach-acr $ACR \ 
+    --node-count 3 \ 
+    --network-plugin azure \ 
+    --vnet-subnet-id $CLUSTER_SUBNET_ID \ 
+    --service-cidr 10.0.0.0/24 \ 
+    --dns-service-ip 10.0.0.10 \ 
+    --docker-bridge-address 172.17.0.1/16 \ 
+    --enable-aad \ 
+    --aad-admin-group-object-ids $GROUP_OBJECT_ID \ 
+    --generate-ssh-keys 

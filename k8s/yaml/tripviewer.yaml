@@ -3,6 +3,7 @@ apiVersion: apps/v1 # The API resource where this workload resides
 kind: Deployment # The kind of workload we're creating
 metadata:
   name: tripviewer # This will be the name of the deployment
+  namespace: web
 spec:
   selector: # Define the wrapping strategy
     matchLabels: # Match all pods with the defined labels
@@ -28,9 +29,9 @@ spec:
               name: http # We named that port "http" so we can refer to it later
           env:
           - name: USERPROFILE_API_ENDPOINT
-            value: "http://userprofile.default.svc.cluster.local"
+            value: "http://userprofile.api.svc.cluster.local"
           - name: TRIPS_API_ENDPOINT
-            value: "http://trips.default.svc.cluster.local"
+            value: "http://trips.api.svc.cluster.local"
           - name: BING_MAPS_KEY
             value: ""
 ---
@@ -39,6 +40,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tripviewer
+  namespace: web
 spec:
   type: LoadBalancer
   selector:
