@@ -13,7 +13,33 @@ az account show
 az account set --subscription f4d4ae10-2845-463b-9582-7ae02fffc53c
 
 #To fetch cluster configuration for authenticaion
-az aks get-credentials --resource-group vinod-rg --name vinod-chlng-02
+az aks get-credentials --resource-group cha-03-cluster --name test-aks-chlng-03
+
+team03-api
+89518f25-9cf0-449c-81f5-907c2cba8063
+
+team03-web
+3d3a73b7-0ff5-45fe-8108-02408c910787
+
+$SECRETS_PROVIDER_IDENTITY
+3b922360-6604-469e-8b51-7b532c1387d9
+
+#assign role to api dev user 
+az role assignment create --assignee $WEB_GROUP_ID --role "Azure Kubernetes Service Cluster User Role" --scope $CLUSTER_ID
+
+INFO: 2023/04/28 18:15:01 main.go:36: Trips Service Server started on port 80
+INFO: 2023/04/28 18:16:20 logger.go:59: getAllTrips - Query Failed to Execute.
+DEBUG: 2023/04/28 18:16:20 logger.go:60: lookup sqladminxZq2360.database.windows.net on 10.0.0.10:53: no such host      
+
+
+az aks show -g cha-03-cluster -n test-aks-chlng-03 -o tsv --query addonProfiles.httpApplicationRouting.config.HTTPApplicationRoutingZoneName
+
+
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx 
+
+helm repo update 
+
+helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress -f nginx-helm-values.yaml
 
 #With RBAC use brackglass Account that has Kubernetes admin role access in Azure
 az aks get-credentials --resource-group vinod-rg --name vinod-chlng-02 --admin
@@ -65,16 +91,16 @@ kubectl autoscale deployment name --max=10 --min=3 --cpu-percent=50
 
 az aks nodepool add --resource-group Contoso-RG --cluster-name aks-disney --name gpunodepool --node-count 1 --node-taints sku=gpu:NoSchedule --no-wait
 
-az aks create \ 
-    --resource-group $RESOURCE_GROUP \ 
-    --name $CLUSTER_NAME \ 
-    --attach-acr $ACR \ 
-    --node-count 3 \ 
-    --network-plugin azure \ 
-    --vnet-subnet-id $CLUSTER_SUBNET_ID \ 
-    --service-cidr 10.0.0.0/24 \ 
-    --dns-service-ip 10.0.0.10 \ 
-    --docker-bridge-address 172.17.0.1/16 \ 
-    --enable-aad \ 
-    --aad-admin-group-object-ids $GROUP_OBJECT_ID \ 
-    --generate-ssh-keys 
+az aks create --resource-group test-aks-chlng-03-rg --name test-aks-chlng-03 --attach-acr registryxzq2360 --node-count 3 --network-plugin azure --vnet-subnet-id "/subscriptions/4e0497c8-1ed4-4b48-bb4b-5692e3d3c0d7/resourceGroups/teamResources/providers/Microsoft.Network/virtualNetworks/vnet/subnets/aks-03-subnet" --service-cidr 10.0.0.0/24 --dns-service-ip 10.0.0.10 --docker-bridge-address 172.17.0.1/16 --enable-aad --aad-admin-group-object-ids 3887530c-9700-4cfe-8fad-5f18e6637558 --generate-ssh-keys 
+
+az aks create --resource-group test-aks-chlng-03-rg --name test-aks-chlng-03 --attach-acr registryxzq2360 --node-count 3 --network-plugin azure --vnet-subnet-id aks-03-subnet --service-cidr 10.0.0.0/24 --dns-service-ip 10.0.0.10 --docker-bridge-address 172.17.0.1/16 --enable-aad --aad-admin-group-object-ids 3887530c-9700-4cfe-8fad-5f18e6637558 --generate-ssh-keys 
+
+27d57a00-d2d5-4639-a07c-d861a74fd5ac
+
+    az network vnet subnet list -g teamResources --vnet-name vnet -o table
+
+    SUBNET=$(az network vnet subnet list --resource-group teamResources --vnet-name vnet --query "[?name=='aks-03-subnet'].id" --output tsv)
+
+    /subscriptions/4e0497c8-1ed4-4b48-bb4b-5692e3d3c0d7/resourceGroups/teamResources/providers/Microsoft.Network/virtualNetworks/vnet/subnets/aks-03-subnet
+
+    az network vnet subnet list \ --resource-group teamResources \ --vnet-name vnet \ --query "[0].id" --output tsv

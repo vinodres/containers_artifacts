@@ -26,9 +26,6 @@ spec:
           ports:
             - containerPort: 80 # This container exposes port 80
               name: http # We named that port "http" so we can refer to it later
-          envFrom:
-          - secretRef:
-              name: db-credentials
           env:
           - name: WEB_SERVER_BASE_URI
             value: 'http://0.0.0.0'
@@ -36,6 +33,17 @@ spec:
             value: '80'
           - name: ASPNETCORE_ENVIRONMENT
             value: 'Production'
+          volumeMounts:
+          - name: secrets-store
+            mountPath: "/secrets"
+            readOnly: true
+      volumes:
+      - name: secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: keyvault-sql
 ---
 #service.yaml
 apiVersion: v1
