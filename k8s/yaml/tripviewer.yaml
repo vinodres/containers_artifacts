@@ -1,0 +1,50 @@
+# deployment.yaml
+apiVersion: apps/v1 # The API resource where this workload resides
+kind: Deployment # The kind of workload we're creating
+metadata:
+  name: tripviewer # This will be the name of the deployment
+spec:
+  selector: # Define the wrapping strategy
+    matchLabels: # Match all pods with the defined labels
+      app: tripviewer
+  template: # This is the template of the pod inside the deployment
+    metadata: # Metadata for the pod
+      labels:
+        app: tripviewer
+    spec:
+      containers: # Here we define all containers
+        - image: registryxzq2360.azurecr.io/vinodtripinsights/tripviewer:1.0
+          imagePullPolicy: Always
+          name: tripviewer
+          resources:
+            requests: # Minimum amount of resources requested
+              cpu: 100m
+              memory: 128Mi
+            limits: # Maximum amount of resources requested
+              cpu: 250m
+              memory: 256Mi
+          ports:
+            - containerPort: 80 # This container exposes port 80
+              name: http # We named that port "http" so we can refer to it later
+          env:
+          - name: USERPROFILE_API_ENDPOINT
+            value: "http://userprofile.default.svc.cluster.local"
+          - name: TRIPS_API_ENDPOINT
+            value: "http://trips.default.svc.cluster.local"
+          - name: BING_MAPS_KEY
+            value: ""
+---
+#service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tripviewer
+spec:
+  type: LoadBalancer
+  selector:
+    app: tripviewer
+  ports:
+    - port: 80 # SERVICE exposed port
+      name: http # SERVICE port name
+      protocol: TCP # The protocol the SERVICE will listen to
+      targetPort: http # Port to forward to in the POD
